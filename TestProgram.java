@@ -67,14 +67,21 @@ class SkipListPQ {
 
     private double alpha;
     private Random rand;
+
     private Node head;
     private int maxLevel;
+
+    private int insertCounter;
+    private int totalNodeCounter;
 
     public SkipListPQ(double alpha) {
         this.alpha = alpha;
         this.rand = new Random();
-        this.maxLevel = 0;
 
+        this.insertCounter = 0;
+        this.totalNodeCounter = 0;
+
+        this.maxLevel = 0;
 	    this.head = new Node(0, new MyEntry(Integer.MIN_VALUE, "head"));    
         head.setNext(0, new Node(0, new MyEntry(Integer.MAX_VALUE, "tail")));
     }
@@ -95,7 +102,8 @@ class SkipListPQ {
 	    if(size() == 0) return null;
 
         MyEntry minEntry = head.getNext(0).getEntry();
-        System.out.println(minEntry.getKey() + " " + minEntry.getValue());
+        //System.out.println("\nMIN --> " + minEntry.getKey() + " " + minEntry.getValue());
+        System.out.println("\n" + minEntry.getKey() + " " + minEntry.getValue());
 
         return minEntry;
     }
@@ -104,6 +112,8 @@ class SkipListPQ {
     int newLevel = generateEll(alpha, key);
     Node newNode = new Node(newLevel, new MyEntry(key, value));
     Node tmp = head;
+
+    int nodeCounter = 0;
 
     if (newLevel > maxLevel) {
         maxLevel = newLevel;
@@ -116,16 +126,23 @@ class SkipListPQ {
     for (int i = maxLevel; i >= 0; i--) {
         while (tmp.getNext(i) != null && tmp.getNext(i).getEntry().getKey() < key) {
             tmp = tmp.getNext(i);
+            nodeCounter++;
         }
 
         if (i <= newLevel) {
             newNode.setNext(i, tmp.getNext(i));
             tmp.setNext(i, newNode);
         }
+
+        nodeCounter++;
     }
 
-    return newLevel;
-}
+    insertCounter++;
+    totalNodeCounter += nodeCounter;
+
+    return nodeCounter;
+
+    }
 
 
     private int generateEll(double alpha_ , int key) {
@@ -158,29 +175,71 @@ class SkipListPQ {
             maxLevel--;
         }
 
+        //System.out.println("\nREMOVED MIN\n");
+
         return minNode.getEntry();
     }
 
     public void print() {
-        Node tmp = head.getNext(0); // Partiamo dal primo elemento dopo il nodo head
+        Node tmp = head.getNext(0);
 
-        while (tmp != null && tmp.getEntry().getKey() != Integer.MAX_VALUE) { // Assicurati di non includere il nodo tail
-            int actualLevel = tmp.getLevelCount(); // Ottieni il numero di livelli del nodo
+        while (tmp != null && tmp.getEntry().getKey() != Integer.MAX_VALUE) {
+            int actualLevel = tmp.getLevelCount();
             System.out.print(tmp.getEntry().getKey() + " " + tmp.getEntry().getValue() + " " + actualLevel);
 
-            tmp = tmp.getNext(0); // Vai al prossimo nodo
+            tmp = tmp.getNext(0);
             if (tmp != null && tmp.getEntry().getKey() != Integer.MAX_VALUE) {
-                System.out.print(", "); // Stampa la virgola solo se ci sono altri elementi
+                System.out.print(", ");
             }
         }
-        System.out.println(); // Aggiungi una nuova riga alla fine
+        System.out.println();
     }
+
+    public void printGraphical() {
+    StringBuilder[] levels = new StringBuilder[maxLevel];
+
+    for (int i = 0; i < maxLevel; i++) {
+        levels[i] = new StringBuilder("S" + (maxLevel - 1 - i) + " [-inf]");
+    }
+
+    Node current = head.getNext(0);
+
+    while (current != null && current.getEntry() != null) {
+
+        if (current.getEntry().getKey() == Integer.MAX_VALUE) {
+            break;
+        }
+
+        int nodeHeight = current.getLevelCount();
+
+        for (int i = 0; i < maxLevel; i++) {
+            if (i < nodeHeight) {
+                levels[maxLevel - 1 - i].append("---[").append(current.getEntry().getKey()).append("]");
+            } else {
+                levels[maxLevel - 1 - i].append("---[  ]");
+            }
+        }
+
+        current = current.getNext(0);
+    }
+
+    for (int i = 0; i < maxLevel; i++) {
+        levels[i].append("---[+inf]");
+        System.out.println(levels[i].toString());
+    }
+}
+
+public void printSummary(){
+    double averageNodes = insertCounter == 0 ? 0 : (double) totalNodeCounter / insertCounter;
+    System.out.println("\nAlpha: " + alpha + " - Size: " + size() + " - N# insert: " + insertCounter + " - Average nodes: " + averageNodes);
+}
+
+
 
 
 }
 
 //TestProgram
-
 public class TestProgram {
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -192,6 +251,7 @@ public class TestProgram {
             String[] firstLine = br.readLine().split(" ");
             int N = Integer.parseInt(firstLine[0]);
             double alpha = Double.parseDouble(firstLine[1]);
+            //System.out.println("Operations: " + N + " - Alpha: " + alpha);
             System.out.println(N + " " + alpha);
 
             SkipListPQ skipList = new SkipListPQ(alpha);
@@ -214,12 +274,15 @@ public class TestProgram {
                         break;
                     case 3:
 			            skipList.print();
+                        //skipList.printGraphical();
                         break;
                     default:
                         System.out.println("Invalid operation code");
                         return;
                 }
             }
+
+            skipList.printSummary();
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
