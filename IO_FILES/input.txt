@@ -1,17 +1,6 @@
-16 0.5
-2 12 luca
-2 59 mario
-2 22 franco
-2 83 tocio
-2 88 gio
-2 11 fra
-2 44 gg
-2 33 kkk
-2 34 aaa
-2 99 mmm
-2 18 lll
-2 77 ppp
-0
-1
-2 10 bonaz
+5 -1
+2 10 car
+2 20 bike
+2 5 dog
 3
+1

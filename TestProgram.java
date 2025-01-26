@@ -21,6 +21,10 @@ class MyEntry {
         return value;
     }
 
+    /*public void setValue(String value) {
+        this.value = value;
+    }*/
+
     @Override
     public String toString() {
         return key + " " + value;
@@ -115,6 +119,13 @@ class SkipListPQ {
 
     int nodeCounter = 0;
 
+    
+    /*if (tmp.getNext(0) != null && tmp.getNext(0).getEntry().getKey() == key) {
+        tmp.getNext(0).getEntry().setValue(value);
+        return nodeCounter;
+    }*/
+
+
     if (newLevel > maxLevel) {
         maxLevel = newLevel;
 
@@ -133,9 +144,9 @@ class SkipListPQ {
             newNode.setNext(i, tmp.getNext(i));
             tmp.setNext(i, newNode);
         }
-
         nodeCounter++;
     }
+
 
     insertCounter++;
     totalNodeCounter += nodeCounter;
@@ -231,7 +242,11 @@ class SkipListPQ {
 
 public void printSummary(){
     double averageNodes = insertCounter == 0 ? 0 : (double) totalNodeCounter / insertCounter;
-    System.out.println("\nAlpha: " + alpha + " - Size: " + size() + " - N# insert: " + insertCounter + " - Average nodes: " + averageNodes);
+    System.out.println("\n" + alpha + " " + size() + " " + insertCounter + " " + averageNodes);
+    /*System.out.println("\nAlpha: " + alpha + " - Size: " + size() + " - N# insert: " + insertCounter + " - Average nodes: " + averageNodes);
+    System.out.println("Insertions: " + insertCounter + ", Total nodes traversed: " + totalNodeCounter);
+    System.out.println("Calculated average nodes per insert: " + averageNodes);*/
+
 }
 
 
